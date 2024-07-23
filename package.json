@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "npm install",
+    "start": "node api/index.js"
+  },
   "dependencies": {
     "@marp-team/marp-cli": "^3.4.0",
     "cors": "^2.8.5",
