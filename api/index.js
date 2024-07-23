@@ -70,7 +70,7 @@ app.post("/convert", async (req, res) => {
     res.send(html);
   } catch (error) {
     console.error("Error generating HTML:", error);
-    res.status(500).json({ error: "Error generating HTML" });
+    res.status(500).json({ error: "Error generating HTML" , details: error.message});
   }
 });
 
