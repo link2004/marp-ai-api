@@ -64,7 +64,7 @@ const generateFile = async (markdown, format, res) => {
     res.send(fileContent);
   } catch (error) {
     console.error(`Error generating ${format.toUpperCase()}:`, error);
-    res.status(500).json({ error: `Error generating ${format.toUpperCase()}` });
+    res.status(500).json({ error: `Error generating ${format.toUpperCase()}: ${error.message}` });
   }
 };
 
