@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080
 
 # アプリケーションを起動
-CMD ["node", "app.js"]
+CMD ["node", "api.js"]
