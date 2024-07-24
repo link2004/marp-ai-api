@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # アプリケーションのポートを指定
-EXPOSE 8080
+EXPOSE 3005
 
 # アプリケーションを起動
 CMD ["node", "api.js"]
