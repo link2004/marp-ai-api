@@ -30,33 +30,27 @@ app.use(express.json({ limit: '1mb' })); // JSONボディサイズを制限
 // カスタムCSSファイルのパス
 const customCssPath = path.join(__dirname, "custom.css");
 
-app.post("/convert", async (req, res) => {
+const generateFile = async (markdown, format, res) => {
   try {
-    const { markdown } = req.body;
-
-    if (!markdown) {
-      return res.status(400).json({ error: "Markdown content is required" });
-    }
-
     // 一時ファイルの作成
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "marp-"));
-    const inputFile = path.join(tempDir, "input.md");
-    const outputFile = path.join(tempDir, "output.html");
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'marp-'));
+    const inputFile = path.join(tempDir, 'input.md');
+    const outputFile = path.join(tempDir, `output.${format}`);
 
     await fs.writeFile(inputFile, markdown);
 
-    // marp-cliを使用してHTMLを生成
+    // marp-cliを使用してファイルを生成
     const cliOptions = [
       inputFile,
-      "--output",
+      '--output',
       outputFile,
-      "--theme",
+      '--theme',
       customCssPath,
-      "--html"
+      `--${format}`
     ];
     await marpCli(cliOptions);
 
-    const html = await fs.readFile(outputFile, "utf-8");
+    const fileContent = await fs.readFile(outputFile);
 
     // クリーンアップ
     await Promise.all([
@@ -65,14 +59,26 @@ app.post("/convert", async (req, res) => {
     ]);
     await fs.rmdir(tempDir);
 
-    res.setHeader("Content-Type", "text/html");
-    res.setHeader("Content-Disposition", "attachment; filename=marp-slide.html");
-    res.send(html);
+    res.setHeader('Content-Type', format === 'html' ? 'text/html' : format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+    res.setHeader('Content-Disposition', `attachment; filename=marp-slide.${format}`);
+    res.send(fileContent);
   } catch (error) {
-    console.error("Error generating HTML:", error);
-    res.status(500).json({ error: "Error generating HTML" });
+    console.error(`Error generating ${format.toUpperCase()}:`, error);
+    res.status(500).json({ error: `Error generating ${format.toUpperCase()}` });
   }
+};
+
+app.post('/:format(html|pdf|pptx)', async (req, res) => {
+  const { markdown } = req.body;
+  const { format } = req.params;
+
+  if (!markdown) {
+    return res.status(400).json({ error: 'Markdown content is required' });
+  }
+
+  await generateFile(markdown, format, res);
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
