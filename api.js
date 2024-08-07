@@ -20,10 +20,16 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORSを設定（本番環境では特定のオリジンのみを許可）
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000'
-}));
+// ALLOWED_ORIGINが設定されているかチェック
+if (process.env.ALLOWED_ORIGIN) {
+  // ALLOWED_ORIGINが設定されている場合、特定のオリジンからのアクセスのみを許可
+  app.use(cors({
+    origin: process.env.ALLOWED_ORIGIN
+  }));
+} else {
+  // ALLOWED_ORIGINが設定されていない場合、すべてのオリジンからのアクセスを許可
+  app.use(cors());
+}
 
 app.use(express.json({ limit: '1mb' })); // JSONボディサイズを制限
 
