@@ -36,14 +36,16 @@ app.use(express.json({ limit: '1mb' })); // JSONボディサイズを制限
 // カスタムCSSファイルのパス
 const customCssPath = path.join(__dirname, "custom.css");
 
-const generateFile = async (markdown, format, res) => {
+const generateFile = async (markdown, css, format, res) => {
   try {
     // 一時ファイルの作成
     const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'marp-'));
+    const customCss = path.join(tempDir, 'custom.css');
     const inputFile = path.join(tempDir, 'input.md');
     const outputFile = path.join(tempDir, `output.${format}`);
 
     await fs.writeFile(inputFile, markdown);
+    await fs.writeFile(customCss, css);
 
     // marp-cliを使用してファイルを生成
     const cliOptions = [
@@ -51,7 +53,7 @@ const generateFile = async (markdown, format, res) => {
       '--output',
       outputFile,
       '--theme',
-      customCssPath,
+      customCss,
       `--${format}`
     ];
     await marpCli(cliOptions);
@@ -60,6 +62,7 @@ const generateFile = async (markdown, format, res) => {
 
     // クリーンアップ
     await Promise.all([
+      fs.unlink(customCss),
       fs.unlink(inputFile),
       fs.unlink(outputFile)
     ]);
@@ -75,14 +78,15 @@ const generateFile = async (markdown, format, res) => {
 };
 
 app.post('/:format(html|pdf|pptx)', async (req, res) => {
-  const { markdown } = req.body;
+  const { markdown,css } = req.body;
   const { format } = req.params;
 
-  if (!markdown) {
+  if (!markdown && !css) {
     return res.status(400).json({ error: 'Markdown content is required' });
   }
 
-  await generateFile(markdown, format, res);
+
+  await generateFile(markdown, css, format, res);
 });
 
 
