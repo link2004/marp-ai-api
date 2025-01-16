@@ -1,11 +1,12 @@
 # Specify base image
-FROM node:16
+FROM node:18
 
 # Create working directory
 WORKDIR /usr/src/app
 
 # Install necessary tools
 RUN apt-get update && apt-get install -y \
+    libreoffice \
     wget \
     gnupg \
     --no-install-recommends && \

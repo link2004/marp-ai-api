@@ -54,8 +54,12 @@ const generateFile = async (markdown, css, format, res) => {
       outputFile,
       '--theme',
       customCss,
-      `--${format}`
     ];
+    if (format === 'pptx-editable') {
+      cliOptions.push('--pptx', '--pptx-editable');
+    } else {
+      cliOptions.push(`--${format}`);
+    }
     await marpCli(cliOptions);
 
     const fileContent = await fs.readFile(outputFile);
@@ -77,7 +81,7 @@ const generateFile = async (markdown, css, format, res) => {
   }
 };
 
-app.post('/:format(html|pdf|pptx)', async (req, res) => {
+app.post('/:format(html|pdf|pptx|pptx-editable)', async (req, res) => {
   const { markdown,css } = req.body;
   const { format } = req.params;
 
