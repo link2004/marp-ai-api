@@ -51,10 +51,14 @@ const generateFile = async (markdown, css, format, res) => {
     const cliOptions = [
       inputFile,
       '--output',
-      outputFile,
-      '--theme',
-      customCss,
+      outputFile
     ];
+
+    // markdownにtheme: が含まれないか、theme: customが含まれる場合
+    if (!markdown.includes('theme:') || markdown.includes('theme: custom')) {
+      cliOptions.push('--theme', customCss);
+    }
+
     if (format === 'pptx-editable') {
       cliOptions.push('--pptx', '--pptx-editable');
     } else {
