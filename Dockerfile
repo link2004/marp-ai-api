@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
     libreoffice \
     wget \
     gnupg \
+    fonts-recommended \
+    fonts-noto \
+    fonts-ipafont \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
